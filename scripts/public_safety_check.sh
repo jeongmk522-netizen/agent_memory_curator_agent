@@ -9,6 +9,14 @@ fi
 hits_file="$(mktemp)"
 trap 'rm -f "$hits_file"' EXIT
 
+for memory_file in memory.md project-memory.md team-memory.md; do
+  if [ -e "$memory_file" ] && git ls-files --error-unmatch "$memory_file" >/dev/null 2>&1; then
+    echo "public_safety_check: blocked by tracked root ${memory_file}" >&2
+    echo "Keep memory stores outside this public repo or under ignored local paths." >&2
+    exit 1
+  fi
+done
+
 check_pattern() {
   local label="$1"
   local pattern="$2"

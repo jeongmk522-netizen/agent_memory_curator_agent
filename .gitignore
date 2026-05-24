@@ -10,6 +10,9 @@
 *.p12
 
 .memory.local/
+/memory.md
+/project-memory.md
+/team-memory.md
 .codex/
 .claude/settings.local.json
 .claude/settings.*.local.json

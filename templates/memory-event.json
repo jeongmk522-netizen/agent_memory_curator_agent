@@ -1,0 +1,23 @@
+{
+  "event_id": "memevt_example_0001",
+  "timestamp": "2026-05-24T00:00:00Z",
+  "source_agent": "Project PM Soul",
+  "task_id": "task_memory_taxonomy_design",
+  "project_id": "agentlas-memory-curator-agent",
+  "agent_repo": "agent_memory_curator_agent",
+  "team_id": "agentlas-agent-lab",
+  "memory_kind": "procedure",
+  "content": "Worker agents should emit structured memory events instead of writing durable memory directly.",
+  "suggested_scope": "agent_team",
+  "sensitivity": "public",
+  "confidence": "high",
+  "evidence_refs": [
+    "docs/integration-contract.md",
+    "docs/memory-taxonomy.md"
+  ],
+  "ttl": "durable",
+  "supersedes": [],
+  "conflicts_with": [],
+  "redaction_notes": "",
+  "human_review_required": false
+}
