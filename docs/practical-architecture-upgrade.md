@@ -28,13 +28,47 @@ fact from project memory to team memory.
 | AppBridge live memory | Shared memory had stale release commands while Claude project memory had the correction. |
 | `llm-wiki` live router/search | Agentlas Desktop was not a registered project, and natural-language memory queries missed existing files. |
 
+## Research Repo Synthesis
+
+Current public Agentlas repos under `github.com/jeongmk522-netizen` form one
+architecture stack:
+
+| Repo | Paper or system role | Production implication |
+|---|---|---|
+| `agent_memory_curator_agent` | Memory admission, scope routing, dedupe, and conflict control. | Owns the write gate; no durable write should bypass evidence/safety/scope checks. |
+| `agent_project_pm_soul` | Project-level continuity and handoff ownership. | Project memory needs a PM Soul owner, not only runtime-local chat history. |
+| `agentlas_task_bias` | Task-selection and file-coverage bias in agent work. | Memory recall must include sitemap/index coverage so salient logs do not crowd out neglected source roots. |
+| `agentlas_org_chart` | Hierarchy-first coordination for multi-agent systems. | `team_memory` promotion needs a clear owner path: worker -> curator -> PM Soul/Policy Office. |
+| `agentlas-desktop` | Runtime implementation for local teams and CLI. | Desktop/terminal must consume the same scope vocabulary and source map as the research papers. |
+
 ## System Graph
 
-The original paper graphs remain the quantitative evidence layer:
+The original paper graphs remain the quantitative evidence layer and are used
+directly in this production report.
 
-- `assets/figure2_hallucination_growth.png` - hallucination probability over time.
-- `assets/figure3_parameter_sensitivity.png` - curator parameter sensitivity.
-- `assets/figure4_scope_routing.png` - scope-routing flow.
+<p align="center">
+  <img src="../assets/figure2_hallucination_growth.png" alt="Figure 2: hallucination probability over time" width="100%"/>
+</p>
+
+**Figure 2 practical reading:** without a curated write gate, repeated memory
+turns compound error. The upgrade therefore makes curation an always-on release
+gate, not an optional cleanup step.
+
+<p align="center">
+  <img src="../assets/figure3_parameter_sensitivity.png" alt="Figure 3: curator parameter sensitivity" width="85%"/>
+</p>
+
+**Figure 3 practical reading:** recall quality depends on explicit curator
+parameters: scope, evidence, owner, and retention policy. The source map makes
+those parameters machine-readable.
+
+<p align="center">
+  <img src="../assets/figure4_scope_routing.png" alt="Figure 4: scope routing decision flow" width="100%"/>
+</p>
+
+**Figure 4 practical reading:** scope routing is the system boundary. Production
+Agentlas extends the historical four-scope paper model with `user_identity` and
+renames `agent_team` to `team_memory` while preserving the old name as an alias.
 
 The graph below is the operational upgrade graph for production systems.
 
