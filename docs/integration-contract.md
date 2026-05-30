@@ -77,6 +77,25 @@ Worker Agent completes work
 | `evidence_refs` | source files, URLs, commits, logs, or artifacts |
 | `ttl` | durable, until_milestone, session, discard |
 
+## Request Context Capsule
+
+`request_context` is optional but recommended when a memory may need to be
+found later by a similar request rather than by its exact stored fact. It is
+especially useful for cross-folder work such as running AppBridge while fixing
+Agentlas Desktop release memory.
+
+Do not store the raw user prompt. Store a curated capsule:
+
+| Field | Purpose |
+|---|---|
+| `user_intent` | One-line summary of what the user was trying to do |
+| `trigger_terms` | Searchable words users may repeat later |
+| `cwd_at_request` | Folder/runtime where the request was made |
+| `target_project` | Project actually affected |
+| `target_path` | Target folder/file when different from cwd |
+| `cross_context` | True when cwd and target differ |
+| `outcome` | One-line result that makes this memory reusable |
+
 ## Optional Event Fields
 
 | Field | Purpose |
@@ -107,6 +126,15 @@ At the end of substantial work, workers should return:
     "sensitivity": "public",
     "confidence": "high",
     "evidence_refs": ["docs/case-study-consulting-engagement.md"],
+    "request_context": {
+      "user_intent": "Standardize financial bridge handoffs after a consulting engagement review.",
+      "trigger_terms": ["finance", "handoff", "assumptions"],
+      "cwd_at_request": null,
+      "target_project": "consulting-engagement",
+      "target_path": null,
+      "cross_context": false,
+      "outcome": "Future finance handoffs should include assumptions tables."
+    },
     "ttl": "durable"
   }
 ]

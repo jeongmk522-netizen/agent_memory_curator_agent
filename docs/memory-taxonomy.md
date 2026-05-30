@@ -153,4 +153,21 @@ session/
   scratch.md              temporary context
 ```
 
+## Request Context Memory
+
+A memory entry should answer two questions:
+
+1. What durable fact, decision, risk, or procedure should be remembered?
+2. In what request context would a future agent need to rediscover it?
+
+The second question is handled by a `request_context` capsule attached to the
+memory event. The capsule stores a short intent summary, trigger terms,
+`cwd_at_request`, `target_project`, optional `target_path`, `cross_context`, and
+outcome. It must not store the raw user prompt or full transcript.
+
+This gives the retrieval layer a second search surface. A user can ask from an
+AppBridge folder about "the Desktop release thing from before", and the curator
+can match the request context even if the memory payload says only
+`release:mac:publish`.
+
 The exact file layout can vary. The scope boundary should not.

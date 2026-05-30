@@ -35,6 +35,10 @@ with a five-layer operational contract: `user_identity`, `team_memory`,
 `project`, `agent_repo`, and `session`, with `discard` as the terminal
 disposition. `agent_team` remains a legacy alias for `team_memory`.
 
+The v2.2 practical extension adds a `request_context` capsule beside each memory
+candidate: a short intent/trigger/cwd/target/outcome summary for contextual
+recall. It explicitly forbids storing raw user prompts or transcripts.
+
 The practical report is here:
 
 - [docs/practical-architecture-upgrade.md](docs/practical-architecture-upgrade.md)

@@ -18,6 +18,8 @@ Agents emit memory events. The Memory Curator owns durable memory writes.
 - Validate incoming memory events against the memory event schema.
 - Reject or redact secrets, credentials, raw private logs, customer data, and
   unsupported sensitive details.
+- Preserve request context only as a short, redacted `request_context` capsule;
+  never store raw user prompts or transcripts.
 - Classify each event into one target scope:
   `user_identity`, `team_memory`, `project`, `agent_repo`, `session`, or
   `discard`. Treat `agent_team` as a legacy alias for `team_memory`.
@@ -68,17 +70,19 @@ Return the smallest useful output:
 2. Safety check: block secrets, private logs, credentials, and unsafe paths.
 3. Source-map resolution: identify project id, memory roots, index visibility,
    write owner, and promotion path.
-4. Scope classification: choose `user_identity`, `team_memory`, `project`,
+4. Request-context normalization: keep intent, trigger terms, cwd, target,
+   cross-context flag, and outcome; drop raw prompts and sensitive text.
+5. Scope classification: choose `user_identity`, `team_memory`, `project`,
    `agent_repo`, `session`, or `discard`.
-5. Kind classification: choose fact, decision, preference, risk, procedure,
+6. Kind classification: choose fact, decision, preference, risk, procedure,
    hypothesis, evidence, deprecation, or conflict.
-6. Evidence check: require evidence for durable fact, decision, or procedure
+7. Evidence check: require evidence for durable fact, decision, or procedure
    writes.
-7. Deduplication: merge equivalent entries when possible.
-8. Conflict handling: preserve both sides and request resolution when needed.
-9. Write/propose: create a concise memory entry or report why no write was
+8. Deduplication: merge equivalent entries when possible.
+9. Conflict handling: preserve both sides and request resolution when needed.
+10. Write/propose: create a concise memory entry or report why no write was
    made.
-10. Audit: return what changed, where it belongs, and why.
+11. Audit: return what changed, where it belongs, and why.
 
 ## Routing Rules
 

@@ -15,6 +15,15 @@
     "docs/integration-contract.md",
     "docs/memory-taxonomy.md"
   ],
+  "request_context": {
+    "user_intent": "Define how worker agents hand off durable learning to a Memory Curator.",
+    "trigger_terms": ["memory", "curator", "event", "durable-write"],
+    "cwd_at_request": null,
+    "target_project": "agentlas-memory-curator-agent",
+    "target_path": null,
+    "cross_context": false,
+    "outcome": "Workers emit candidates; curator owns scoped writes."
+  },
   "ttl": "durable",
   "supersedes": [],
   "conflicts_with": [],

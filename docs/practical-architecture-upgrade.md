@@ -107,7 +107,32 @@ Every Agentlas surface needs a machine-readable map containing:
 
 This prevents "memory exists but route/search cannot see it".
 
-### 2. Standardize Five Scopes
+### 2. Add Request Context Capsules
+
+Source maps answer "where does this memory live?" Request context answers "why
+would a future user ask for it?" Store the curated request context next to the
+memory payload:
+
+```json
+{
+  "content": "Agentlas Desktop macOS release uses npm run release:mac:publish.",
+  "request_context": {
+    "user_intent": "Recover the correct Desktop release/signing/notarization procedure.",
+    "trigger_terms": ["desktop", "release", "signing", "notarization", "deploy"],
+    "cwd_at_request": "$APPBRIDGE_ROOT",
+    "target_project": "agentlas_desktop_public",
+    "target_path": "$AGENTLAS_DESKTOP_ROOT",
+    "cross_context": true,
+    "outcome": "Stale shared AppBridge release guidance was corrected from the real package.json scripts."
+  }
+}
+```
+
+The capsule is deliberately not the raw user prompt. It is a searchable,
+redacted provenance summary produced by the worker/curator so a later similar
+request can find the right memory even from another folder.
+
+### 3. Standardize Five Scopes
 
 Canonical scopes are:
 
@@ -122,7 +147,7 @@ Canonical scopes are:
 
 `agent_team` remains a compatibility alias for `team_memory`.
 
-### 3. Promote Corrections Explicitly
+### 4. Promote Corrections Explicitly
 
 Corrections should not stay trapped in a runtime-local folder. When a project
 memory contradicts shared memory, Memory Curator writes a conflict event and
@@ -136,7 +161,7 @@ Claude project memory correction
   -> route/search smoke test
 ```
 
-### 4. Treat Search And Routing As Release Gates
+### 5. Treat Search And Routing As Release Gates
 
 Architecture work is not complete until these checks pass:
 
@@ -145,6 +170,7 @@ python3 "$AGENTLAS_LLM_WIKI_ROOT/scripts/ingest.py"
 python3 "$AGENTLAS_LLM_WIKI_ROOT/scripts/route.py" "Agentlas Desktop memory curator release memory"
 python3 "$AGENTLAS_LLM_WIKI_ROOT/scripts/search.py" --limit 5 "Agentlas Desktop release notarization"
 python3 "$AGENTLAS_LLM_WIKI_ROOT/scripts/search.py" --limit 5 "memory curator five layer team memory"
+python3 "$AGENTLAS_LLM_WIKI_ROOT/scripts/search.py" --limit 5 "request context cross folder release memory"
 ```
 
 ## Four-Surface Application
@@ -162,5 +188,6 @@ python3 "$AGENTLAS_LLM_WIKI_ROOT/scripts/search.py" --limit 5 "memory curator fi
 - `route.py` classifies Agentlas memory work as an Agentlas project, not generic AppBridge.
 - `search.py` finds relevant memory using natural-language terms without requiring exact path knowledge.
 - Desktop/terminal memory scopes accept the 5-layer vocabulary.
+- Memory events accept `request_context` and retrieval includes concise context lines.
 - AppBridge Memory Curator docs use `team_memory` as canonical and `agent_team` only as legacy alias.
 - Stale release-memory guidance is corrected in shared memory.

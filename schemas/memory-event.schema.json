@@ -98,6 +98,44 @@
         "type": "string"
       }
     },
+    "request_context": {
+      "type": "object",
+      "description": "Curated request-context capsule for recall. Do not store the raw user prompt.",
+      "additionalProperties": false,
+      "properties": {
+        "user_intent": {
+          "type": "string",
+          "maxLength": 240
+        },
+        "trigger_terms": {
+          "type": "array",
+          "maxItems": 12,
+          "items": {
+            "type": "string",
+            "maxLength": 40
+          }
+        },
+        "cwd_at_request": {
+          "type": ["string", "null"],
+          "maxLength": 500
+        },
+        "target_project": {
+          "type": ["string", "null"],
+          "maxLength": 120
+        },
+        "target_path": {
+          "type": ["string", "null"],
+          "maxLength": 500
+        },
+        "cross_context": {
+          "type": "boolean"
+        },
+        "outcome": {
+          "type": ["string", "null"],
+          "maxLength": 240
+        }
+      }
+    },
     "ttl": {
       "type": "string",
       "enum": [
