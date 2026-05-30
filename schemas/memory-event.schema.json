@@ -65,6 +65,8 @@
     "suggested_scope": {
       "type": "string",
       "enum": [
+        "user_identity",
+        "team_memory",
         "agent_repo",
         "agent_team",
         "project",

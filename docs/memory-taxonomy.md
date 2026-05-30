@@ -1,6 +1,6 @@
 # Memory Taxonomy
 
-Date: 2026-05-24
+Date: 2026-05-31
 
 Claim type: design hypothesis.
 
@@ -10,12 +10,15 @@ Multi-agent systems need memory ownership, not just memory storage. The useful
 question is not "should agents remember?" but "which memory should own this
 entry, and who is allowed to write it?"
 
-Agentlas Memory Curator separates memory into four scopes:
+Agentlas Memory Curator separates production memory into five durable/scratch
+scopes plus one terminal disposition:
 
-1. agent repo memory
-2. agent team memory
+1. user identity memory
+2. team memory
 3. project memory
-4. session scratch
+4. agent repo memory
+5. session scratch
+6. discard
 
 This separation keeps specialist agents narrow while preserving continuity
 where it belongs.
@@ -24,10 +27,15 @@ where it belongs.
 
 | Scope | Owner | Lifetime | Examples | Write gate |
 |---|---|---|---|---|
+| User identity memory (`user_identity`) | user/operator profile | durable | stable language, approval style, notification channel, identity-level preferences | explicit user edit or local high-confidence preference gate |
+| Team memory (`team_memory`) | organization / HQ / policy office | durable | handoff standards, safety policies, shared routing conventions | team-level curator approval / promotion request |
 | Agent repo memory | one public or private agent repo | durable | agent purpose, design decisions, failure modes, evaluation criteria | curated repo decision |
-| Agent team memory | the agent organization | durable | handoff standards, safety policies, shared routing conventions | team-level curator approval |
 | Project memory | one project folder or engagement | project lifetime | project state, user preferences, decisions, risks, evidence index | PM Soul or curator approval |
 | Session scratch | one task or session | ephemeral | temporary findings, candidate hypotheses, todo fragments | default capture, usually not durable |
+| Discard | no owner | none | unsafe, duplicate, unsupported, secret, stale noise | reject/redact |
+
+`agent_team` remains a legacy alias for `team_memory` because early paper
+artifacts and exported agent bundles used that name.
 
 ## Why This Matters
 
@@ -50,11 +58,12 @@ With scope separation:
 
 | Human/organization concept | Agentlas scope |
 |---|---|
+| operator/user profile | user identity memory |
+| organization playbook / "how we work" | team memory |
 | an individual's professional memory | agent repo memory |
-| organization playbook / "how we work" | agent team memory |
 | engagement/project file | project memory |
 | working memory during a meeting | session scratch |
-| "who knows what" in a team | agent team memory plus agent registry |
+| "who knows what" in a team | team memory plus agent registry |
 
 The Memory Curator is not the whole memory system. It is the librarian and
 records manager that decides where each item belongs.
@@ -77,7 +86,8 @@ records manager that decides where each item belongs.
 
 | Event pattern | Target scope | Action |
 |---|---|---|
-| "This agent should always return memory events" | agent team | append procedure |
+| "User always wants Korean audit reports under 600 words" | user_identity | propose or append only in an explicit user/profile store |
+| "This agent should always return memory events" | team_memory | append procedure via approval/promotion |
 | "Project PM Soul README should be paper-style" | agent repo | append decision |
 | "Client rejected version 1 deck structure" | project | append preference/decision |
 | "Need to inspect API logs later" | session | keep scratch |
@@ -121,18 +131,23 @@ Agent repo memory can become team memory only when:
 ## Minimum Viable Memory Stack
 
 ```text
-memory-events/
+memory-map.json           source map for roots, indexes, owners, promotion paths
+
+events/
   incoming.jsonl          emitted by worker agents
   curation-report.md      written by Memory Curator
 
-agent-repo/
-  docs/repo-decisions.md  public-safe agent decisions
+user-identity/
+  profile.md              explicit operator preferences
 
-agent-team/
-  team-memory.md          shared playbook and policies
+team-memory/
+  playbooks.md            shared playbook and policies
 
 project/
   project-soul-memory.md  current project state
+
+agent-repo/
+  docs/repo-decisions.md  public-safe agent decisions
 
 session/
   scratch.md              temporary context

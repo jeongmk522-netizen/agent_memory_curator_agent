@@ -28,6 +28,24 @@ The bound motivates a system design. We propose the **Memory Curator Agent**: a 
 
 ---
 
+## Practical Architecture Upgrade (2026-05-31)
+
+The production Agentlas implementation now extends the paper's four-scope model
+with a five-layer operational contract: `user_identity`, `team_memory`,
+`project`, `agent_repo`, and `session`, with `discard` as the terminal
+disposition. `agent_team` remains a legacy alias for `team_memory`.
+
+The practical report is here:
+
+- [docs/practical-architecture-upgrade.md](docs/practical-architecture-upgrade.md)
+
+It covers the real Agentlas failure mode where memory existed but could not be
+found because project roots, Claude project memory, AppBridge shared memory,
+Desktop `.agentlas/`, and `llm-wiki` indexes were not mapped as one retrieval
+surface.
+
+---
+
 ## 1. Introduction
 
 ### 1.1 The Self-Evolving Agent Moment

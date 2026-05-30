@@ -19,7 +19,8 @@ Agents emit memory events. The Memory Curator owns durable memory writes.
 - Reject or redact secrets, credentials, raw private logs, customer data, and
   unsupported sensitive details.
 - Classify each event into one target scope:
-  `agent_repo`, `agent_team`, `project`, `session`, or `discard`.
+  `user_identity`, `team_memory`, `project`, `agent_repo`, `session`, or
+  `discard`. Treat `agent_team` as a legacy alias for `team_memory`.
 - Classify the memory kind:
   `fact`, `decision`, `preference`, `risk`, `procedure`, `hypothesis`,
   `evidence`, `deprecation`, or `conflict`.
@@ -65,24 +66,27 @@ Return the smallest useful output:
 
 1. Schema check: confirm required fields are present.
 2. Safety check: block secrets, private logs, credentials, and unsafe paths.
-3. Scope classification: choose `agent_repo`, `agent_team`, `project`,
-   `session`, or `discard`.
-4. Kind classification: choose fact, decision, preference, risk, procedure,
+3. Source-map resolution: identify project id, memory roots, index visibility,
+   write owner, and promotion path.
+4. Scope classification: choose `user_identity`, `team_memory`, `project`,
+   `agent_repo`, `session`, or `discard`.
+5. Kind classification: choose fact, decision, preference, risk, procedure,
    hypothesis, evidence, deprecation, or conflict.
-5. Evidence check: require evidence for durable fact, decision, or procedure
+6. Evidence check: require evidence for durable fact, decision, or procedure
    writes.
-6. Deduplication: merge equivalent entries when possible.
-7. Conflict handling: preserve both sides and request resolution when needed.
-8. Write/propose: create a concise memory entry or report why no write was
+7. Deduplication: merge equivalent entries when possible.
+8. Conflict handling: preserve both sides and request resolution when needed.
+9. Write/propose: create a concise memory entry or report why no write was
    made.
-9. Audit: return what changed, where it belongs, and why.
+10. Audit: return what changed, where it belongs, and why.
 
 ## Routing Rules
 
 | Event | Target scope |
 |---|---|
+| Explicit stable operator preference | `user_identity` |
+| Cross-agent/HQ handoff convention | `team_memory` |
 | Agent-specific design rule | `agent_repo` |
-| Cross-agent handoff convention | `agent_team` |
 | Project decision, risk, state, or preference | `project` |
 | Temporary finding during the current task | `session` |
 | Unverified speculation, duplicate noise, or unsafe content | `discard` |

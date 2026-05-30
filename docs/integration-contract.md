@@ -1,6 +1,6 @@
 # Integration Contract
 
-Date: 2026-05-24
+Date: 2026-05-31
 
 Claim type: implementation contract.
 
@@ -30,11 +30,30 @@ content.
 See [../templates/agent-memory-emitter-block.md](../templates/agent-memory-emitter-block.md)
 for a pasteable version.
 
+## Practical v2.1 Upgrade
+
+The original paper model uses four scopes (`agent_repo`, `agent_team`,
+`project`, `session`). Production Agentlas now runs a five-layer scope model:
+
+1. `user_identity` - user-level preferences and durable operator identity.
+2. `team_memory` - organization/HQ playbooks shared across agents and projects.
+3. `project` - one project folder, product, engagement, or PM Soul.
+4. `agent_repo` - one specialist agent/repo's own workflow memory.
+5. `session` - current-task scratch, never treated as durable memory.
+
+`discard` remains a terminal disposition. `agent_team` is kept as a compatibility
+alias for `team_memory`; new integrations should emit `team_memory`.
+
+The production upgrade adds a source map before retrieval. Each runtime should
+know where its canonical memory lives, which index sees it, and which owner may
+write it before it asks an LLM to "remember" or "search".
+
 ## Event Lifecycle
 
 ```text
 Worker Agent completes work
   -> emits Memory Event(s)
+  -> Memory Source Map resolves project/runtime/owner
   -> Memory Curator validates schema
   -> Memory Curator checks safety and sensitivity
   -> Memory Curator chooses scope and action
@@ -52,7 +71,7 @@ Worker Agent completes work
 | `task_id` | task/session identifier |
 | `memory_kind` | fact, decision, preference, risk, procedure, hypothesis, evidence, deprecation, conflict |
 | `content` | concise memory candidate |
-| `suggested_scope` | agent_repo, agent_team, project, session, discard |
+| `suggested_scope` | user_identity, team_memory, project, agent_repo, session, discard (`agent_team` accepted as legacy alias) |
 | `sensitivity` | public, internal, private, confidential, secret |
 | `confidence` | high, medium, low |
 | `evidence_refs` | source files, URLs, commits, logs, or artifacts |
@@ -84,7 +103,7 @@ At the end of substantial work, workers should return:
     "source_agent": "Finance Agent",
     "memory_kind": "procedure",
     "content": "Financial bridge handoffs should include an assumptions table.",
-    "suggested_scope": "agent_team",
+    "suggested_scope": "team_memory",
     "sensitivity": "public",
     "confidence": "high",
     "evidence_refs": ["docs/case-study-consulting-engagement.md"],
@@ -124,6 +143,7 @@ See [../templates/memory-curation-report.md](../templates/memory-curation-report
 | private project memory | yes if authorized by PM Soul | never promote to public without review |
 | session scratch | yes | low risk, ephemeral |
 | team memory | no by default | requires team-level approval |
+| user identity | no by default in shared/server contexts | local app may store explicit high-confidence preferences; shared AppBridge rejects/proposes |
 | secret/confidential events | no | reject, redact, or escalate |
 
 ## Safety Requirements
@@ -153,3 +173,22 @@ Worker agents own bounded execution.
 
 The PM Soul can ask the curator to process memory events after each milestone,
 before closeout, or whenever multiple specialists return conflicting updates.
+
+## Source Map Requirement
+
+Every production integration should maintain a small machine-readable map of
+memory roots. The exact file name can vary, but the data must answer:
+
+| Field | Purpose |
+|---|---|
+| `project_id` | Stable routing id, not only folder name |
+| `surface` | web, desktop, terminal, appbridge, or public-research-repo |
+| `canonical_memory_roots` | PM Soul, local `.agentlas/`, shared wiki, Claude project memory, etc. |
+| `indexed_by` | Which index/search command can see each root |
+| `write_owner` | PM Soul, Memory Curator, Policy Office, user, or agent repo owner |
+| `promotion_path` | How a finding moves from session/project memory to team memory |
+
+Without this map, memories can exist but stay invisible to the agent. The
+Agentlas Desktop release-memory incident is the practical example: a corrected
+Claude project memory existed, while shared AppBridge memory still pointed to
+stale release scripts.

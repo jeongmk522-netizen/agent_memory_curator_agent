@@ -8,7 +8,7 @@
   "team_id": "agentlas-agent-lab",
   "memory_kind": "procedure",
   "content": "Worker agents should emit structured memory events instead of writing durable memory directly.",
-  "suggested_scope": "agent_team",
+  "suggested_scope": "team_memory",
   "sensitivity": "public",
   "confidence": "high",
   "evidence_refs": [
